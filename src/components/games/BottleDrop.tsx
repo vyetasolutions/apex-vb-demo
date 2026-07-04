@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { GameDef } from "@/lib/store";
+import SevenUpArt from "@/components/brandart/SevenUpArt";
 
 export default function BottleDrop({
   game,
@@ -59,14 +60,19 @@ export default function BottleDrop({
 
   return (
     <div className="flex flex-col items-center gap-6 py-6">
-      <p className="text-sm text-apex-platinum/60">Tap CATCH when the bottle lines up with the target zone.</p>
+      <div className="flex items-center gap-2">
+        <SevenUpArt className="h-10 w-10" />
+        <p className="text-sm text-apex-platinum/60">Tap CATCH when the 7UP bottle lines up with the target zone.</p>
+      </div>
 
-      <div className="relative h-16 w-full max-w-sm rounded-full bg-apex-panelLight">
+      <div className="relative h-20 w-full max-w-sm rounded-full bg-apex-panelLight">
         <div className="absolute inset-y-0 left-[42%] right-[42%] rounded-full bg-apex-lime/25 ring-2 ring-apex-lime/50" />
         <motion.div
-          className="absolute top-1/2 h-10 w-10 -translate-y-1/2 rounded-full bg-apex-lime shadow-neon"
-          style={{ left: `calc(${position}% - 20px)` }}
-        />
+          className="absolute top-1/2 h-14 w-14 -translate-y-1/2 -translate-x-1/2"
+          style={{ left: `${position}%` }}
+        >
+          <SevenUpArt className="h-14 w-14 drop-shadow-lg" />
+        </motion.div>
       </div>
 
       {!caught ? (

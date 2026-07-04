@@ -3,8 +3,28 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { GameDef } from "@/lib/store";
+import MountainDewArt from "@/components/brandart/MountainDewArt";
 
 const ROUNDS = 4;
+
+// A simplified Mountain Dew can unit for the stack — two-tone gradient
+// band + highlight, styled like a can rather than a flat block.
+function MiniCan({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 64 28" className={className} xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="miniDewGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#F2E100" />
+          <stop offset="100%" stopColor="#9FB800" />
+        </linearGradient>
+      </defs>
+      <rect x="0" y="0" width="64" height="28" rx="6" fill="url(#miniDewGrad)" />
+      <rect x="0" y="2" width="64" height="4" rx="2" fill="#0D3B00" opacity="0.25" />
+      <rect x="0" y="22" width="64" height="4" rx="2" fill="#0D3B00" opacity="0.25" />
+      <rect x="6" y="6" width="4" height="16" rx="2" fill="#ffffff" opacity="0.3" />
+    </svg>
+  );
+}
 
 export default function CanStack({
   game,
@@ -78,9 +98,12 @@ export default function CanStack({
 
   return (
     <div className="flex flex-col items-center gap-6 py-6">
-      <p className="text-sm text-apex-platinum/60">
-        Tap DROP to place each can as close to center as you can — {ROUNDS} cans per round.
-      </p>
+      <div className="flex items-center gap-2">
+        <MountainDewArt className="h-10 w-10" />
+        <p className="text-sm text-apex-platinum/60">
+          Tap DROP to stack each Mountain Dew can as close to center as you can — {ROUNDS} cans per round.
+        </p>
+      </div>
 
       <div className="flex h-56 w-full max-w-sm flex-col-reverse items-center justify-start gap-1 rounded-2xl bg-apex-panelLight p-3">
         {stack.map((offset, i) => (
@@ -88,9 +111,10 @@ export default function CanStack({
             key={i}
             initial={{ y: -40, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="h-8 w-16 rounded-md bg-apex-citrus shadow-neon"
             style={{ marginLeft: offset * 0.6 }}
-          />
+          >
+            <MiniCan className="h-7 w-16 drop-shadow" />
+          </motion.div>
         ))}
       </div>
 

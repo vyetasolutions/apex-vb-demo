@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GameDef } from "@/lib/store";
+import { BRAND_ART } from "@/components/brandart";
+import StingArt from "@/components/brandart/StingArt";
 
-const PRODUCTS = ["Pepsi", "Mirinda", "7UP", "Mtn Dew", "Sting", "Aquafina"];
+const PRODUCTS = ["Pepsi", "Mirinda", "7UP", "Mountain Dew", "Sting", "Aquafina"];
 
 interface Card {
   id: number;
@@ -86,34 +88,36 @@ export default function MemoryFlip({
 
   return (
     <div className="flex flex-col items-center gap-5 py-4">
-      <p className="text-sm text-apex-platinum/60">Match the pairs of Varun product cards. Misses: {misses}</p>
+      <div className="flex items-center gap-2">
+        <StingArt className="h-9 w-9" />
+        <p className="text-sm text-apex-platinum/60">Match the pairs of Varun product cards. Misses: {misses}</p>
+      </div>
 
       <div className="grid grid-cols-4 gap-2">
-        {deck.map((card, i) => (
-          <button
-            key={card.id}
-            onClick={() => flip(i)}
-            className="relative h-16 w-16 [perspective:600px]"
-          >
-            <motion.div
-              className="relative h-full w-full rounded-lg [transform-style:preserve-3d]"
-              animate={{ rotateY: card.flipped || card.matched ? 180 : 0 }}
-              transition={{ duration: 0.4 }}
-            >
-              <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-apex-sting/80 [backface-visibility:hidden] text-apex-void font-bold">
-                ?
-              </div>
-              <div
-                className={`absolute inset-0 flex items-center justify-center rounded-lg text-[10px] font-semibold text-center px-1 [backface-visibility:hidden] ${
-                  card.matched ? "bg-apex-lime/70 text-apex-void" : "bg-apex-panelLight"
-                }`}
-                style={{ transform: "rotateY(180deg)" }}
+        {deck.map((card, i) => {
+          const Art = BRAND_ART[card.label];
+          return (
+            <button key={card.id} onClick={() => flip(i)} className="relative h-16 w-16 [perspective:600px]">
+              <motion.div
+                className="relative h-full w-full rounded-lg [transform-style:preserve-3d]"
+                animate={{ rotateY: card.flipped || card.matched ? 180 : 0 }}
+                transition={{ duration: 0.4 }}
               >
-                {card.label}
-              </div>
-            </motion.div>
-          </button>
-        ))}
+                <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-apex-sting/80 [backface-visibility:hidden] text-apex-void font-bold">
+                  <StingArt className="h-8 w-8 opacity-60" />
+                </div>
+                <div
+                  className={`absolute inset-0 flex flex-col items-center justify-center gap-0.5 rounded-lg px-1 [backface-visibility:hidden] ${
+                    card.matched ? "bg-apex-lime/20 ring-2 ring-apex-lime" : "bg-apex-panelLight"
+                  }`}
+                  style={{ transform: "rotateY(180deg)" }}
+                >
+                  <Art className="h-9 w-9" />
+                </div>
+              </motion.div>
+            </button>
+          );
+        })}
       </div>
 
       <AnimatePresence>

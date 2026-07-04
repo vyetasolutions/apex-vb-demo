@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { GameDef } from "@/lib/store";
 import { rollReward } from "@/lib/rewardEngine";
+import MirindaArt from "@/components/brandart/MirindaArt";
 
 export default function ScratchCard({
   game,
@@ -28,12 +29,22 @@ export default function ScratchCard({
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    ctx.fillStyle = "#F2C400";
+    // Mirinda-branded scratch foil: orange base + a diagonal citrus
+    // texture instead of a flat gold rectangle.
+    ctx.fillStyle = "#F2740C";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#0D1220";
+    ctx.strokeStyle = "rgba(255, 220, 150, 0.35)";
+    ctx.lineWidth = 6;
+    for (let x = -canvas.height; x < canvas.width; x += 22) {
+      ctx.beginPath();
+      ctx.moveTo(x, canvas.height);
+      ctx.lineTo(x + canvas.height, 0);
+      ctx.stroke();
+    }
+    ctx.fillStyle = "#FFF4DC";
     ctx.font = "bold 18px sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText("SCRATCH HERE", canvas.width / 2, canvas.height / 2 + 6);
+    ctx.fillText("SCRATCH THE MIRINDA CARD", canvas.width / 2, canvas.height / 2 + 6);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game.slug]);
 
@@ -62,8 +73,8 @@ export default function ScratchCard({
   return (
     <div className="flex flex-col items-center gap-6 py-4">
       <div className="relative h-56 w-full max-w-sm overflow-hidden rounded-2xl">
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-apex-panelLight">
-          <p className="text-xs uppercase tracking-widest text-apex-platinum/50">Mirinda reveal</p>
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-apex-panelLight">
+          <MirindaArt className="h-16 w-16 drop-shadow-lg" />
           <p className="font-display text-3xl font-extrabold text-gradient-brand">
             {result ? `+${result.points}` : "…"}
           </p>
@@ -82,7 +93,7 @@ export default function ScratchCard({
         />
       </div>
       <p className="text-sm text-apex-platinum/50">
-        {revealed ? "Nice one! Tap play again below." : "Drag your finger across the gold card to scratch it off."}
+        {revealed ? "Nice one! Tap play again below." : "Drag your finger across the orange foil to scratch it off."}
       </p>
     </div>
   );
