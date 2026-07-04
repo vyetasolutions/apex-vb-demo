@@ -1,0 +1,133 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { GameDef } from "@/lib/store";
+
+const PRODUCTS = ["Pepsi", "Mirinda", "7UP", "Mtn Dew", "Sting", "Aquafina"];
+
+interface Card {
+  id: number;
+  label: string;
+  flipped: boolean;
+  matched: boolean;
+}
+
+function buildDeck(): Card[] {
+  const deck = [...PRODUCTS, ...PRODUCTS]
+    .map((label, i) => ({ id: i, label, flipped: false, matched: false }))
+    .sort(() => Math.random() - 0.5);
+  return deck;
+}
+
+export default function MemoryFlip({
+  game,
+  onResult
+}: {
+  game: GameDef;
+  onResult: (points: number, bonus: boolean) => void;
+}) {
+  const [deck, setDeck] = useState<Card[]>(buildDeck);
+  const [selected, setSelected] = useState<number[]>([]);
+  const [misses, setMisses] = useState(0);
+  const [reported, setReported] = useState(false);
+
+  const matchedCount = deck.filter((c) => c.matched).length;
+  const won = matchedCount === deck.length;
+
+  useEffect(() => {
+    if (selected.length !== 2) return;
+    const [a, b] = selected;
+    const cardA = deck[a];
+    const cardB = deck[b];
+
+    const timeout = setTimeout(() => {
+      setDeck((d) =>
+        d.map((c, i) => {
+          if (i === a || i === b) {
+            return cardA.label === cardB.label
+              ? { ...c, matched: true, flipped: true }
+              : { ...c, flipped: false };
+          }
+          return c;
+        })
+      );
+      if (cardA.label !== cardB.label) setMisses((m) => m + 1);
+      setSelected([]);
+    }, 700);
+
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selected]);
+
+  useEffect(() => {
+    if (won && !reported) {
+      const accuracy = Math.max(0.2, 1 - misses / 12);
+      const points = Math.round(game.minPoints + accuracy * (game.maxPoints - game.minPoints));
+      const bonus = misses <= 1;
+      setReported(true);
+      onResult(points, bonus);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [won]);
+
+  const flip = (i: number) => {
+    if (selected.length === 2 || deck[i].flipped || deck[i].matched) return;
+    setDeck((d) => d.map((c, idx) => (idx === i ? { ...c, flipped: true } : c)));
+    setSelected((s) => [...s, i]);
+  };
+
+  const reset = () => {
+    setDeck(buildDeck());
+    setSelected([]);
+    setMisses(0);
+    setReported(false);
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-5 py-4">
+      <p className="text-sm text-apex-platinum/60">Match the pairs of Varun product cards. Misses: {misses}</p>
+
+      <div className="grid grid-cols-4 gap-2">
+        {deck.map((card, i) => (
+          <button
+            key={card.id}
+            onClick={() => flip(i)}
+            className="relative h-16 w-16 [perspective:600px]"
+          >
+            <motion.div
+              className="relative h-full w-full rounded-lg [transform-style:preserve-3d]"
+              animate={{ rotateY: card.flipped || card.matched ? 180 : 0 }}
+              transition={{ duration: 0.4 }}
+            >
+              <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-apex-sting/80 [backface-visibility:hidden] text-apex-void font-bold">
+                ?
+              </div>
+              <div
+                className={`absolute inset-0 flex items-center justify-center rounded-lg text-[10px] font-semibold text-center px-1 [backface-visibility:hidden] ${
+                  card.matched ? "bg-apex-lime/70 text-apex-void" : "bg-apex-panelLight"
+                }`}
+                style={{ transform: "rotateY(180deg)" }}
+              >
+                {card.label}
+              </div>
+            </motion.div>
+          </button>
+        ))}
+      </div>
+
+      <AnimatePresence>
+        {won && (
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            onClick={reset}
+            className="w-full max-w-sm rounded-xl border border-white/10 bg-white/5 py-3.5 font-semibold text-apex-platinum/80"
+          >
+            Play again
+          </motion.button>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}

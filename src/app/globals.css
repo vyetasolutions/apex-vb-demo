@@ -1,0 +1,39 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap");
+
+html, body {
+  background: #05070D;
+  color: #E7ECF7;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+}
+
+h1, h2, h3, .font-display {
+  font-family: "Poppins", sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 87, 255, 0.4);
+  border-radius: 8px;
+}
+
+.glass {
+  background: rgba(20, 27, 46, 0.55);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.text-gradient-brand {
+  background: linear-gradient(90deg, #0057FF 0%, #3FD5FF 45%, #E4002B 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
