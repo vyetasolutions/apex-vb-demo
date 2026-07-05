@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import WalletBar from "@/components/WalletBar";
 import { useWallet } from "@/lib/store";
+import { BRAND_ART } from "@/components/brandart";
 
 const REWARDS = [
   { name: "Free 500ml Pepsi", brand: "Pepsi", cost: 500 },
@@ -32,21 +33,27 @@ export default function WalletPage() {
       <section>
         <h2 className="mb-3 font-display text-lg font-bold">Reward catalogue</h2>
         <div className="grid grid-cols-1 gap-2">
-          {REWARDS.map((r) => (
-            <div key={r.name} className="flex items-center justify-between rounded-2xl glass p-3">
-              <div>
-                <p className="text-sm font-semibold">{r.name}</p>
-                <p className="text-xs text-apex-platinum/50">{r.brand} · {r.cost.toLocaleString()} pts</p>
+          {REWARDS.map((r) => {
+            const Art = BRAND_ART[r.brand];
+            return (
+              <div key={r.name} className="flex items-center justify-between rounded-2xl glass p-3">
+                <div className="flex items-center gap-3">
+                  <Art className="h-10 w-10 shrink-0 drop-shadow" />
+                  <div>
+                    <p className="text-sm font-semibold">{r.name}</p>
+                    <p className="text-xs text-apex-platinum/50">{r.brand} · {r.cost.toLocaleString()} pts</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleRedeem(r.name, r.cost)}
+                  disabled={balance < r.cost}
+                  className="rounded-lg bg-apex-cobalt px-3 py-2 text-xs font-semibold text-white disabled:opacity-30"
+                >
+                  Redeem
+                </button>
               </div>
-              <button
-                onClick={() => handleRedeem(r.name, r.cost)}
-                disabled={balance < r.cost}
-                className="rounded-lg bg-apex-cobalt px-3 py-2 text-xs font-semibold text-white disabled:opacity-30"
-              >
-                Redeem
-              </button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 

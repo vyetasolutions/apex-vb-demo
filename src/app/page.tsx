@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import WalletBar from "@/components/WalletBar";
 import { GAMES } from "@/lib/store";
-import { ACCENT_BG } from "@/lib/theme";
+import { BRAND_ART } from "@/components/brandart";
 
 export default function HomePage() {
   return (
@@ -50,7 +50,12 @@ export default function HomePage() {
                 href={`/games/${g.slug}`}
                 className={`block rounded-2xl glass p-4 transition hover:-translate-y-1 hover:shadow-neon`}
               >
-                <div className={`mb-3 h-10 w-10 rounded-xl ${ACCENT_BG[g.color]} animate-floaty`} />
+                <div className="mb-3 flex h-16 w-16 items-center justify-center animate-floaty">
+                  {(() => {
+                    const Art = BRAND_ART[g.brand];
+                    return <Art className="h-16 w-16 drop-shadow-lg" />;
+                  })()}
+                </div>
                 <p className="text-sm font-semibold">{g.name}</p>
                 <p className="text-xs text-apex-platinum/50">{g.brand}</p>
               </Link>

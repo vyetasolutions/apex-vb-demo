@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { GameDef } from "@/lib/store";
+import { skillReward } from "@/lib/rewardEngine";
 import SevenUpArt from "@/components/brandart/SevenUpArt";
 
 export default function BottleDrop({
@@ -19,7 +20,7 @@ export default function BottleDrop({
 
   useEffect(() => {
     let last = performance.now();
-    const speed = 65; // % per second
+    const speed = 95; // % per second — fast enough that reaction time matters
 
     const tick = (now: number) => {
       const dt = (now - last) / 1000;
@@ -49,9 +50,11 @@ export default function BottleDrop({
     if (caught) return;
     const sweetSpot = 50;
     const distance = Math.abs(position - sweetSpot);
-    const accuracy = Math.max(0, 1 - distance / 50); // 1 = perfect, 0 = edge
-    const points = Math.round(game.minPoints + accuracy * (game.maxPoints - game.minPoints));
-    const bonus = accuracy > 0.92;
+    // Zone tolerance tightened from the original version: full credit only
+    // within a narrow band, so success requires real timing rather than
+    // "close enough" anywhere in the middle third of the track.
+    const accuracy = Math.max(0, 1 - distance / 22);
+    const { points, bonus } = skillReward(game, accuracy);
     setCaught({ points, bonus });
     onResult(points, bonus);
   };
@@ -66,7 +69,7 @@ export default function BottleDrop({
       </div>
 
       <div className="relative h-20 w-full max-w-sm rounded-full bg-apex-panelLight">
-        <div className="absolute inset-y-0 left-[42%] right-[42%] rounded-full bg-apex-lime/25 ring-2 ring-apex-lime/50" />
+        <div className="absolute inset-y-0 left-[46%] right-[46%] rounded-full bg-apex-lime/25 ring-2 ring-apex-lime/50" />
         <motion.div
           className="absolute top-1/2 h-14 w-14 -translate-y-1/2 -translate-x-1/2"
           style={{ left: `${position}%` }}

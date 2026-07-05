@@ -2,19 +2,29 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 
+type Tier = "miss" | "win" | "bonus";
+
+const COPY: Record<Tier, { eyebrow: string; sub: string }> = {
+  miss: { eyebrow: "So close", sub: "consolation points — try dialing in the timing" },
+  win: { eyebrow: "You won", sub: "points added to your wallet" },
+  bonus: { eyebrow: "Bonus multiplier!", sub: "points added to your wallet" }
+};
+
 export default function PlayResultOverlay({
   open,
   points,
-  bonus,
+  tier,
   onClose,
   onPlayAgain
 }: {
   open: boolean;
   points: number;
-  bonus: boolean;
+  tier: Tier;
   onClose: () => void;
   onPlayAgain: () => void;
 }) {
+  const copy = COPY[tier];
+
   return (
     <AnimatePresence>
       {open && (
@@ -33,11 +43,17 @@ export default function PlayResultOverlay({
             onClick={(e) => e.stopPropagation()}
             className="w-72 rounded-3xl glass p-6 text-center shadow-neon"
           >
-            <p className="text-xs uppercase tracking-widest text-apex-aqua">
-              {bonus ? "Bonus multiplier!" : "You won"}
+            <p className={`text-xs uppercase tracking-widest ${tier === "miss" ? "text-apex-platinum/50" : "text-apex-aqua"}`}>
+              {copy.eyebrow}
             </p>
-            <p className="mt-2 font-display text-4xl font-extrabold text-gradient-brand">+{points}</p>
-            <p className="text-sm text-apex-platinum/50">points added to your wallet</p>
+            <p
+              className={`mt-2 font-display text-4xl font-extrabold ${
+                tier === "miss" ? "text-apex-platinum/70" : "text-gradient-brand"
+              }`}
+            >
+              +{points}
+            </p>
+            <p className="text-sm text-apex-platinum/50">{copy.sub}</p>
 
             <div className="mt-5 flex gap-2">
               <button

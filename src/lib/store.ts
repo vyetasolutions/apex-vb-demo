@@ -61,12 +61,29 @@ export interface PlayResult {
   at: number;
 }
 
+export interface RedemptionRecord {
+  rewardName: string;
+  pointsSpent: number;
+  at: number;
+}
+
 interface WalletState {
   balance: number;
   lifetimePoints: number;
   history: PlayResult[];
+  redemptions: RedemptionRecord[];
   recordPlay: (slug: string, points: number, bonus: boolean, payload?: Record<string, unknown>) => void;
   redeem: (cost: number, rewardName: string) => boolean;
+}
+
+// Retention proxy: distinct calendar days on which at least one game was
+// played. This is what the economics model uses as "repeat visits" — a
+// player grinding 40 plays in one sitting still counts as 1 active day,
+// which is deliberate: farming a single session isn't the same business
+// signal as a customer coming back on a new day.
+export function uniqueActiveDays(history: PlayResult[]): number {
+  const days = new Set(history.map((h) => new Date(h.at).toDateString()));
+  return days.size;
 }
 
 export const useWallet = create<WalletState>()(
@@ -75,6 +92,7 @@ export const useWallet = create<WalletState>()(
       balance: 0,
       lifetimePoints: 0,
       history: [],
+      redemptions: [],
       recordPlay: (slug, points, bonus, payload) => {
         const entry: PlayResult = { gameSlug: slug, points, bonus, payload, at: Date.now() };
         set((s) => ({
@@ -97,7 +115,8 @@ export const useWallet = create<WalletState>()(
       redeem: (cost, rewardName) => {
         const { balance } = get();
         if (balance < cost) return false;
-        set((s) => ({ balance: s.balance - cost }));
+        const entry: RedemptionRecord = { rewardName, pointsSpent: cost, at: Date.now() };
+        set((s) => ({ balance: s.balance - cost, redemptions: [entry, ...s.redemptions].slice(0, 200) }));
         if (!isDemoMode && supabase) {
           void supabase.from("redemptions").insert({ points_spent: cost, reward_id: rewardName });
         }

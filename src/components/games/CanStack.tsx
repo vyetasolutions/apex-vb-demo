@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { GameDef } from "@/lib/store";
+import { skillReward } from "@/lib/rewardEngine";
 import MountainDewArt from "@/components/brandart/MountainDewArt";
 
 const ROUNDS = 4;
@@ -43,7 +44,7 @@ export default function CanStack({
   useEffect(() => {
     if (finished) return;
     let last = performance.now();
-    const speed = 80 + round * 12; // gets faster each round
+    const speed = 110 + round * 18; // faster base speed, gets faster each round
 
     const tick = (now: number) => {
       const dt = (now - last) / 1000;
@@ -75,10 +76,12 @@ export default function CanStack({
     setStack((s) => [...s, offset]);
 
     if (round + 1 >= ROUNDS) {
+      // Tighter tolerance than the original version — a near-miss no
+      // longer scores close to a perfect stack, so the final four-round
+      // average genuinely separates a careful player from a rushed one.
       const avgAccuracy =
-        [...stack, offset].reduce((acc, o) => acc + Math.max(0, 1 - Math.abs(o) / 50), 0) / ROUNDS;
-      const points = Math.round(game.minPoints + avgAccuracy * (game.maxPoints - game.minPoints));
-      const bonus = avgAccuracy > 0.85;
+        [...stack, offset].reduce((acc, o) => acc + Math.max(0, 1 - Math.abs(o) / 20), 0) / ROUNDS;
+      const { points, bonus } = skillReward(game, avgAccuracy);
       setFinished(true);
       onResult(points, bonus);
     } else {
@@ -121,7 +124,7 @@ export default function CanStack({
       {!finished ? (
         <>
           <div className="relative h-4 w-full max-w-sm rounded-full bg-white/5">
-            <div className="absolute inset-y-0 left-[45%] right-[45%] rounded-full bg-apex-citrus/40" />
+            <div className="absolute inset-y-0 left-[47%] right-[47%] rounded-full bg-apex-citrus/40" />
             <div
               className="absolute top-1/2 h-6 w-6 -translate-y-1/2 rounded-full bg-apex-citrus shadow-neon"
               style={{ left: `calc(${position}% - 12px)` }}

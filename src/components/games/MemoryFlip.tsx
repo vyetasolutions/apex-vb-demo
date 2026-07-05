@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { GameDef } from "@/lib/store";
+import { skillReward } from "@/lib/rewardEngine";
 import { BRAND_ART } from "@/components/brandart";
 import StingArt from "@/components/brandart/StingArt";
 
@@ -64,9 +65,11 @@ export default function MemoryFlip({
 
   useEffect(() => {
     if (won && !reported) {
-      const accuracy = Math.max(0.2, 1 - misses / 12);
-      const points = Math.round(game.minPoints + accuracy * (game.maxPoints - game.minPoints));
-      const bonus = misses <= 1;
+      // A miss now costs more against the curve than the original linear
+      // version — 6 pairs from memory with zero misses is a genuinely
+      // clean run; a handful of misses should visibly cost real points.
+      const accuracy = Math.max(0, 1 - misses / 6);
+      const { points, bonus } = skillReward(game, accuracy);
       setReported(true);
       onResult(points, bonus);
     }

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { GAMES } from "@/lib/store";
-import { ACCENT_BG } from "@/lib/theme";
+import { BRAND_ART } from "@/components/brandart";
 
 export default function GamesHub() {
   return (
@@ -25,7 +25,12 @@ export default function GamesHub() {
               href={`/games/${g.slug}`}
               className="flex items-center gap-4 rounded-2xl glass p-4 transition hover:-translate-y-0.5 hover:shadow-neon"
             >
-              <div className={`h-14 w-14 shrink-0 rounded-2xl ${ACCENT_BG[g.color]} animate-floaty`} />
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center animate-floaty">
+                {(() => {
+                  const Art = BRAND_ART[g.brand];
+                  return <Art className="h-16 w-16 drop-shadow-lg" />;
+                })()}
+              </div>
               <div className="flex-1">
                 <p className="font-semibold">{g.name}</p>
                 <p className="text-xs text-apex-platinum/50">
